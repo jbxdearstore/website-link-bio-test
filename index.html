@@ -784,7 +784,7 @@ window.addEventListener('resize', resize);
     document.getElementById('profile-name').textContent = buyer.display_name || '';
     document.getElementById('profile-bio').textContent = buyer.bio || '';
     if (buyer.avatar_url) {
-      document.getElementById('profile-avatar').src = buyer.avatar_url;
+      document.getElementById('profile-avatar').src = buyer.avatar_url + '?v=' + Date.now();
     }
     document.title = (buyer.display_name || 'Link in Bio') + ' — Link in Bio';
 
