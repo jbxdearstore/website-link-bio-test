@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Dashboard Buyer</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root{
+      --bg1:#04060d;
+      --bg2:#0a0f1f;
+      --cyan:#22e8ff;
+      --blue:#3b6bff;
+      --purple:#a259ff;
+      --silver:#c9d3e0;
+      --glass:rgba(255,255,255,0.045);
+      --glass-border:rgba(255,255,255,0.09);
+      --danger:#ff6b7a;
+      --edit-green:#3ddc84;
+    }
+
+    *{margin:0;padding:0;box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+
+    html{scroll-behavior:smooth;}
+
+    body{
+      min-height:100vh;
+      background:
+        radial-gradient(circle at 15% 20%, #120B1E 0%, transparent 35%),
+        radial-gradient(circle at 85% 10%, #0B1220 0%, transparent 40%),
+        radial-gradient(circle at 50% 80%, #070B14 0%, transparent 50%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      color:var(--silver);
+      font-family:'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif;
+      display:flex;
+      justify-content:center;
+      overflow-x:hidden;
+    }
+
+    .wrap{
+      width:100%;
+      max-width:480px;
+      padding:40px 18px 60px;
+    }
+
+    /* ===== Brand header ===== */
+    .brand-title{
+      font-size:22px;
+      font-weight:700;
+      letter-spacing:0.3px;
+      background:linear-gradient(90deg,var(--cyan),var(--blue),var(--purple));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+      text-align:center;
+    }
+
+    .brand-sub{
+      font-size:13px;
+      color:#9aa5b8;
+      text-align:center;
+      margin-top:6px;
+      margin-bottom:28px;
+    }
+
+    /* ===== Card ===== */
+    .card{
+      background:var(--glass);
+      border:1px solid var(--glass-border);
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+      border-radius:18px;
+      padding:18px;
+      margin-bottom:16px;
+    }
+
+    .section-label{
+      font-size:11px;
+      letter-spacing:1.5px;
+      text-transform:uppercase;
+      color:#6f7d94;
+      margin-bottom:14px;
+    }
+
+    /* ===== Fields ===== */
+    .field{
+      margin-bottom:14px;
+    }
+    .field:last-child{ margin-bottom:0; }
+
+    .field label{
+      display:block;
+      font-size:11.5px;
+      color:#8b96ab;
+      margin-bottom:6px;
+      letter-spacing:0.2px;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    textarea{
+      width:100%;
+      background:rgba(255,255,255,0.035);
+      border:1px solid var(--glass-border);
+      border-radius:12px;
+      padding:12px 14px;
+      color:var(--silver);
+      font-size:14px;
+      font-family:inherit;
+      outline:none;
+      transition:border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+    textarea{ resize:none; min-height:70px; }
+
+    input::placeholder, textarea::placeholder{ color:#5c667a; }
+
+    input:focus, textarea:focus{
+      border-color:rgba(139,160,255,0.5);
+      box-shadow:0 0 0 3px rgba(59,107,255,0.15);
+    }
+
+    input[type="file"]{
+      width:100%;
+      font-size:12.5px;
+      color:#9aa5b8;
+      margin-bottom:12px;
+    }
+
+    .hint{
+      font-size:11.5px;
+      color:#6f7d94;
+      margin-top:8px;
+    }
+
+    /* ===== Buttons ===== */
+    .btn-primary{
+      display:block;
+      width:100%;
+      padding:14px;
+      border:none;
+      border-radius:14px;
+      background:linear-gradient(135deg,var(--cyan),var(--blue),var(--purple));
+      color:#04060d;
+      font-weight:700;
+      font-size:14.5px;
+      cursor:pointer;
+      box-shadow:0 0 22px rgba(59,107,255,0.3);
+      transition:transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .btn-primary:active{ transform:scale(0.98); }
+
+    .btn-secondary{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      padding:11px 16px;
+      border-radius:12px;
+      background:transparent;
+      border:1px solid rgba(139,160,255,0.35);
+      color:var(--silver);
+      font-size:13.5px;
+      font-weight:600;
+      cursor:pointer;
+      transition:transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+    .btn-secondary:active{
+      transform:scale(1.02);
+      box-shadow:0 0 16px rgba(59,107,255,0.25);
+      border-color:rgba(139,160,255,0.6);
+    }
+
+    .btn-danger-ghost{
+      padding:5px 11px;
+      border-radius:10px;
+      background:transparent;
+      border:1px solid rgba(255,107,122,0.35);
+      color:var(--danger);
+      font-size:11.5px;
+      font-weight:600;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    .btn-danger-ghost:active{ background:rgba(255,107,122,0.1); }
+
+    .add-row{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    /* ===== Login card ===== */
+    .login-card{ margin-top:20px; }
+
+    /* ===== Avatar ===== */
+    .dash-header{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      margin-bottom:24px;
+    }
+
+    .avatar-ring{
+      width:100px;
+      height:100px;
+      border-radius:50%;
+      padding:3px;
+      background:linear-gradient(135deg,var(--cyan),var(--blue),var(--purple));
+      box-shadow:0 0 25px rgba(59,107,255,0.35);
+      margin-bottom:12px;
+    }
+    #avatar-preview{
+      width:100%;
+      height:100%;
+      border-radius:50%;
+      object-fit:cover;
+      display:block;
+      background:#0a0f1f;
+    }
+    
+    /* ===== Avatar edit button ===== */
+.avatar-ring{ position:relative; }
+.avatar-edit-btn{
+  position:absolute;
+  right:-2px;
+  bottom:-2px;
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  border:none;
+
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+
+  border:1px solid rgba(255,255,255,0.15);
+  box-shadow:0 4px 12px rgba(0,0,0,0.25);
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  transition:transform .15s ease, box-shadow .15s ease;
+  padding:0;
+}
+
+.avatar-edit-btn:active{
+  transform:scale(0.9);
+}
+
+    /* ===== Social list ===== */
+    .social-item{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 12px;
+      border:1px solid var(--glass-border);
+      border-radius:12px;
+      margin-bottom:8px;
+      font-size:13px;
+    }
+    .social-item span{
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      color:var(--silver);
+    }
+    .social-item span b{ color:#9aa5b8; font-weight:600; }
+
+    /* ===== Section cards (dynamic) ===== */
+    .section-card{
+      border:1px solid var(--glass-border);
+      border-radius:14px;
+      padding:14px;
+      margin-bottom:12px;
+      background:rgba(255,255,255,0.02);
+    }
+    .section-card-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:10px;
+    }
+    .section-card-head b{
+      font-size:14px;
+      color:var(--silver);
+      letter-spacing:0.2px;
+    }
+    .link-chip{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      padding:8px 10px;
+      background:rgba(255,255,255,0.03);
+      border-radius:10px;
+      margin-bottom:6px;
+      font-size:12.5px;
+    }
+    .link-chip span{
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      color:#c9d3e0;
+    }
+    .add-row-inline{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      margin-top:10px;
+    }
+
+    /* ===== Result ===== */
+    .result{
+      white-space:pre-wrap;
+      font-family:'Segoe UI', system-ui, sans-serif;
+      font-size:12.5px;
+      color:#9aa5b8;
+      text-align:center;
+      margin-top:18px;
+      padding:0 6px;
+    }
+
+/* ===== Standalone add-section (sudah tidak dibungkus card) ===== */
+.add-section-standalone{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin:4px 0 16px;
+}
+
+/* ===== Section card: fit-content, dinamis ===== */
+/* ===== Link item (nama + url) ===== */
+.link-item{ margin-bottom:8px; }
+
+.link-name-box, .link-url-box{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  width:100%;
+  box-sizing:border-box;
+  background:rgba(255,255,255,0.035);
+  border:1px solid var(--glass-border);
+  border-radius:12px;
+  padding:9px 10px;
+  font-size:12.5px;
+  cursor:pointer;
+  transition:box-shadow 0.28s ease, border-color 0.28s ease, background-image 0.28s ease;
+}
+
+/* Efek garis outline warna tema, aktif selama url box lagi terbuka
+   (dobel tap nama), biar user tau nama & url ini sepasang */
+.link-name-box.active-outline,
+.link-url-box.open{
+  border-color:transparent;
+  background-origin:border-box;
+  background-clip:padding-box, border-box;
+  box-shadow:0 0 14px rgba(59,107,255,0.35), 0 0 0 1px rgba(34,232,255,0.15);
+}
+
+.link-name-text, .link-url-text{
+  flex:1;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:var(--silver);
+}
+
+input.link-edit-input{
+  flex:1;
+  width:auto;
+  background:transparent;
+  border:none;
+  border-radius:0;
+  outline:none;
+  color:var(--silver);
+  font-size:12.5px;
+  font-family:inherit;
+  line-height:normal;
+  padding:0;
+  box-shadow:none;
+}
+input.link-edit-input:focus{ border:none; box-shadow:none; }
+
+.pencil-btn{
+  background:none;
+  border:none;
+  padding:3px;
+  display:flex;
+  align-items:center;
+  cursor:pointer;
+  flex-shrink:0;
+  opacity:0.65;
+}
+.pencil-btn:active{ opacity:1; }
+
+/* ===== Icon bundar: trash (merah) & pensil (hijau) ===== */
+.icon-circle{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid transparent;
+  cursor:pointer;
+  flex-shrink:0;
+  padding:0;
+  transition:transform .15s ease;
+}
+.icon-circle:active{ transform:scale(0.9); }
+.icon-circle svg{ width:14px; height:14px; }
+
+.icon-circle-preview{
+  background:rgba(255,255,255,0.05);
+  color:var(--silver);
+  border-color:var(--glass-border);
+}
+.icon-circle-preview svg{ width:16px; height:16px; }
+
+.icon-circle-trash{
+  background:none;
+  border-color:transparent;
+  color:var(--danger);
+}
+.icon-circle-pencil{
+  background:none;
+  border-color:transparent;
+  color:var(--edit-green);
+}
+
+.icon-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-shrink:0;
+}
+
+.section-title-text{
+  font-size:14px;
+  color:var(--silver);
+  letter-spacing:0.2px;
+  flex:1;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+input.section-title-edit{
+  flex:1;
+  width:auto;
+  background:transparent;
+  border:none;
+  outline:none;
+  color:var(--silver);
+  font-size:14px;
+  font-family:inherit;
+  padding:0;
+  box-shadow:none;
+}
+input.section-title-edit:focus{ border:none; box-shadow:none; }
+
+/* URL box: hidden by default, animasi keluar dari bawah nama box */
+.link-url-box{
+  overflow:hidden;
+  max-height:0;
+  opacity:0;
+  transform:translateY(-8px);
+  padding-top:0;
+  padding-bottom:0;
+  margin-top:0;
+  border-width:0;
+  transition:max-height 0.32s ease, opacity 0.28s ease, transform 0.32s ease,
+             padding 0.32s ease, margin 0.32s ease, border-width 0.1s ease 0.2s;
+}
+.link-url-box.open{
+  max-height:60px;
+  opacity:1;
+  transform:translateY(0);
+  padding-top:9px;
+  padding-bottom:9px;
+  margin-top:6px;
+  border-width:1px;
+}
+
+/* ===== Box1 (nama/url bergantian) + Box2 (submit) ===== */
+.add-link-group{
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  width:100%;
+  box-sizing:border-box;
+  gap:8px;
+  margin-top:50px;
+}
+
+.link-input-box{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  width:100%;
+  box-sizing:border-box;
+  background:rgba(255,255,255,0.035);
+  border:1px solid var(--glass-border);
+  border-radius:12px;
+  padding:10px 12px;
+}
+
+.link-input-track{
+  position:relative;
+  flex:1;
+  min-width:0;
+  height:18px;
+  overflow:hidden;
+}
+
+input.link-input-field{
+  position:absolute;
+  top:0; left:0;
+  width:100%;
+  height:18px;
+  margin:0;
+  background:transparent;
+  border:none;
+  border-radius:0;
+  outline:none;
+  color:var(--silver);
+  font-size:12.5px;
+  font-family:inherit;
+  line-height:18px;
+  padding:0;
+  box-shadow:none;
+  transition:transform 0.28s ease, opacity 0.28s ease, filter 0.28s ease;
+}
+input.link-input-field.active-field{ transform:translateY(0); opacity:1; filter:blur(0); }
+input.link-input-field.slide-out-up{ transform:translateY(-16px); opacity:0; filter:blur(4px); }
+input.link-input-field.slide-in-from-bottom{ transform:translateY(16px); opacity:0; filter:blur(4px); }
+input.link-input-field:focus{ border:none; box-shadow:none; }
+
+.arrow-btn{
+  background:none;
+  border:none;
+  padding:2px;
+  display:flex;
+  align-items:center;
+  cursor:pointer;
+  flex-shrink:0;
+  color:var(--silver);
+}
+.link-input-box[data-mode="url"] .arrow-btn{ display:none; }
+
+.link-submit-box{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  width:100%;
+  background:rgba(255,255,255,0.035);
+  border:1px solid rgba(139,160,255,0.35);
+  border-radius:12px;
+  padding:10px 14px;
+  color:var(--silver);
+  font-size:13px;
+  font-weight:600;
+  font-family:inherit;
+  cursor:pointer;
+}
+.link-submit-box:active{ transform:scale(0.98); }
+
+
+    /* ===== Notifikasi status (pill), gantiin #result lama ===== */
+    .status-pill{
+      position:fixed;
+      top:40px;
+      right:16px;
+      z-index:100000;
+      padding:8px 18px;
+      border-radius:999px;
+      font-size:12.5px;
+      font-weight:700;
+      letter-spacing:0.2px;
+      background:rgba(10,14,26,0.88);
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+      border:1.5px solid transparent;
+      white-space:nowrap;
+      pointer-events:none;
+      opacity:0;
+      transform:translateY(-120px);
+      transition:transform 0.45s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+    }
+    .status-pill.show{
+      opacity:1;
+      transform:translateY(0);
+      pointer-events:auto;
+    }
+    .status-pill.pending{
+      border-color:#ffcc33;
+      color:#ffcc33;
+      box-shadow:0 0 14px rgba(255,204,51,0.35);
+    }
+    .status-pill.success{
+      border-color:var(--edit-green);
+      color:var(--edit-green);
+      box-shadow:0 0 14px rgba(61,220,132,0.35);
+    }
+    .status-pill.error{
+      border-color:var(--danger);
+      color:var(--danger);
+      box-shadow:0 0 14px rgba(255,107,122,0.35);
+    }
+
+.modal-overlay{
+  position:fixed;
+  inset:0;
+  z-index:100000;
+  background:rgba(4,6,13,0.65);
+  backdrop-filter:blur(3px);
+  -webkit-backdrop-filter:blur(3px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  opacity:0;
+  transition:opacity 0.25s ease;
+}
+.modal-overlay.show{
+  display:flex;
+  opacity:1;
+}
+.modal-card{
+  width:100%;
+  max-width:340px;
+  transform:translateY(14px) scale(0.96);
+  transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+.modal-overlay.show .modal-card{
+  transform:translateY(0) scale(1);
+}
+.modal-title{
+  font-size:17px;
+  font-weight:700;
+  letter-spacing:0.2px;
+  color:var(--silver);
+  text-align:center;
+  margin-bottom:20px;
+}
+.modal-actions{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.pill-btn{
+  flex:1;
+  padding:11px 0;
+  border-radius:999px;
+  font-size:13.5px;
+  font-weight:700;
+  cursor:pointer;
+  background:transparent;
+  font-family:inherit;
+}
+.pill-btn-neutral{
+  border:1px solid var(--glass-border);
+  color:var(--silver);
+}
+.pill-btn-neutral:active{ background:rgba(255,255,255,0.05); }
+.pill-btn-danger{
+  border:1.5px solid var(--danger);
+  color:var(--danger);
+}
+.pill-btn-danger:active{ background:rgba(255,107,122,0.1); }
+
+/* Hormati preferensi "kurangi animasi" di OS/browser pengguna */
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{
+    animation-duration:0.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:0.01ms !important;
+    scroll-behavior:auto !important;
+  }
+}
+
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+
+<div id="status-pill" class="status-pill">
+  <span id="status-pill-text">Memuat...</span>
+</div>
+
+  <div id="login-box" class="card login-card">
+    <h1 class="brand-title">Login Dashboard</h1>
+    <p class="brand-sub">Masuk untuk mengelola</p>
+
+    <div class="field">
+      <label for="username">Username</label>
+      <input type="text" id="username" placeholder="username" autocomplete="username">
+    </div>
+    <div class="field" style="margin-bottom:18px;">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+
+    <button class="btn-primary" onclick="loginBuyer()">Masuk</button>
+  </div>
+
+  <div id="dashboard-box" style="display:none;">
+
+<div class="dash-header">
+  <div style="width:100%; display:flex; justify-content:flex-end; margin-bottom:8px;">
+    <button type="button" class="btn-danger-ghost" onclick="logout()" aria-label="Keluar dari akun">Keluar</button>
+  </div>
+  <div class="avatar-ring" id="avatar-ring">
+    <img id="avatar-preview" style="display:none;" alt="Foto profil">
+    <button type="button" class="avatar-edit-btn" id="avatar-edit-btn" aria-label="Ubah foto profil">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 20h9" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+        <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5Z" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <input type="file" id="avatar-input" accept="image/webp" style="display:none;">
+  </div>
+</div>
+
+    <div class="card">
+      <div class="section-label">Profil</div>
+      <div class="field">
+        <label for="edit-name">Nama</label>
+        <input type="text" id="edit-name">
+      </div>
+      <div class="field">
+        <label for="edit-bio">Bio</label>
+        <textarea id="edit-bio"></textarea>
+      </div>
+    </div>
+
+<div class="section-label" style="margin-bottom:10px;">Tombol Link</div>
+<div id="sections-list"></div>
+<div class="add-section-standalone">
+  <input type="text" id="new-section-title" placeholder="Nama Section Baru">
+  <button class="btn-secondary" onclick="addSection()">Tambah</button>
+</div>
+
+    <div class="card">
+      <div class="section-label">Link Sosmed</div>
+      <div id="social-list"></div>
+      <div class="add-link-group">
+        <div class="link-input-box" id="social-input-box" data-mode="name">
+          <span class="icon-circle icon-circle-preview" id="new-social-icon-preview"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 12h8M12 8v8" stroke="currentColor" stroke-width="1.5"/></svg></span>
+          <div class="link-input-track">
+            <input type="text" class="link-input-field active-field" id="new-social-platform" placeholder="Platform" oninput="updateNewSocialIconPreview()">
+            <input type="text" class="link-input-field" id="new-social-url" placeholder="URL link" style="display:none;">
+          </div>
+          <button class="arrow-btn" onclick="advanceSocialInput()" aria-label="Lanjut isi URL">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+        <button class="link-submit-box" onclick="submitNewSocial()">
+          <span>Tambah</span>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="saveMyData()">Simpan</button>
+  </div>
+
+  <div id="status-pill" class="status-pill">
+    <span id="status-pill-text"></span>
+  </div>
+
+</div>
+
+<div id="delete-section-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="delete-section-modal-title">
+  <div class="card modal-card">
+    <p class="modal-title" id="delete-section-modal-title">Hapus Section ini ?</p>
+    <div class="modal-actions">
+      <button class="pill-btn pill-btn-neutral" onclick="cancelDeleteSection()">Batal</button>
+      <button class="pill-btn pill-btn-danger" onclick="confirmDeleteSectionYes()">Hapus</button>
+    </div>
+  </div>
+</div>
+
+  <script>
+
+    const sb = window.supabase.createClient(
+  'https://cejanyyvtvevihrqaywj.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlamFueXl2dHZldmlocnFheXdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwMDgyNTUsImV4cCI6MjEwMTU4NDI1NX0.KQDCpHbc21_ZkEn0gHrpYJ1wlehFGwdlSSA8S5o3qDw'
+);
+
+let myBuyerId = null;
+
+// ===== Notifikasi status (pill) — gantiin #result lama =====
+function showResult(text, type) {
+  const pill = document.getElementById('status-pill');
+  const textEl = document.getElementById('status-pill-text');
+  clearTimeout(pill._hideTimer);
+  pill.classList.remove('pending', 'success', 'error');
+  pill.classList.add(type);
+  textEl.textContent = text;
+  pill.classList.add('show');
+
+  // 'pending' dibiarkan nempel sampai dioverride status berikutnya
+  // (misal 'Memuat...' -> nanti diganti 'Berhasil'/error oleh proses yang sama)
+  if (type !== 'pending') {
+    pill._hideTimer = setTimeout(() => {
+      pill.classList.remove('show');
+    }, 1800);
+  }
+}
+
+
+async function loginBuyer() {
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+  const fakeEmail = username + '@internal.xdear.app';
+
+  const { error } = await sb.auth.signInWithPassword({
+    email: fakeEmail,
+    password: password
+  });
+
+  if (error) {
+    showResult('GAGAL LOGIN: ' + error.message, 'error');
+    return;
+  }
+
+  showResult('Login berhasil, mengambil data...', 'pending');
+
+  await loadMyData();
+}
+
+async function loadMyData() {
+  const { data: userData } = await sb.auth.getUser();
+  const authUserId = userData.user.id;
+
+  const { data, error } = await sb
+    .from('buyers')
+    .select('*')
+    .eq('auth_user_id', authUserId)
+    .single();
+
+  if (error) {
+    showResult('GAGAL AMBIL DATA: ' + error.message, 'error');
+    return;
+  }
+
+  myBuyerId = data.id;
+
+  document.getElementById('login-box').style.display = 'none';
+  document.getElementById('dashboard-box').style.display = 'block';
+
+  document.getElementById('edit-name').value = data.display_name || '';
+  document.getElementById('edit-bio').value = data.bio || '';
+
+  if (data.avatar_url) {
+  const preview = document.getElementById('avatar-preview');
+  preview.src = data.avatar_url + '?v=' + Date.now();
+  preview.style.display = 'block';
+  }
+
+  await loadSocials();
+  await loadSections();
+
+  showResult('Data dimuat, siap diedit', 'success');
+}
+
+async function saveMyData() {
+  showResult('Memuat...', 'pending');
+
+  const newName = document.getElementById('edit-name').value;
+  const newBio = document.getElementById('edit-bio').value;
+
+  const { error } = await sb
+    .from('buyers')
+    .update({
+      display_name: newName,
+      bio: newBio
+    })
+    .eq('id', myBuyerId);
+
+  if (error) {
+    showResult('GAGAL SIMPAN: ' + error.message, 'error');
+    return;
+  }
+
+  showResult('Berhasil disimpan!', 'success');
+}
+
+async function logout() {
+  await sb.auth.signOut();
+  myBuyerId = null;
+  document.getElementById('dashboard-box').style.display = 'none';
+  document.getElementById('login-box').style.display = 'block';
+  document.getElementById('username').value = '';
+  document.getElementById('password').value = '';
+}
+
+window.loginBuyer = loginBuyer;
+window.loadMyData = loadMyData;
+window.saveMyData = saveMyData;
+window.logout = logout;
+
+/* ===================================================
+   PROFILE PHOTO — pilih WebP, auto-crop lingkaran, upload
+   =================================================== */
+
+let avatarEditBtn, avatarInput;
+
+function initAvatarEditor() {
+  avatarEditBtn = document.getElementById('avatar-edit-btn');
+  avatarInput   = document.getElementById('avatar-input');
+
+  // Pencil -> buka file picker (input tersembunyi)
+  avatarEditBtn.addEventListener('click', () => avatarInput.click());
+
+  // File dipilih -> validasi -> langsung crop & upload
+  avatarInput.addEventListener('change', onAvatarFileSelected);
+}
+
+// Cek isi file ASLI (bukan cuma nama/label MIME) — file WebP valid
+// selalu dimulai dengan signature byte "RIFF....WEBP". Rename file
+// JPG/PNG jadi .webp gak akan lolos cek ini karena isinya tetap beda.
+async function checkRealWebpSignature(file) {
+  try {
+    const buffer = await file.slice(0, 12).arrayBuffer();
+    const bytes = new Uint8Array(buffer);
+    if (bytes.length < 12) return false;
+    const riff = String.fromCharCode(bytes[0], bytes[1], bytes[2], bytes[3]);
+    const webp = String.fromCharCode(bytes[8], bytes[9], bytes[10], bytes[11]);
+    return riff === 'RIFF' && webp === 'WEBP';
+  } catch (err) {
+    return false;
+  }
+}
+
+async function onAvatarFileSelected() {
+  const file = avatarInput.files[0];
+  if (!file) return;
+
+  const isRealWebp = await checkRealWebpSignature(file);
+
+  if (!isRealWebp) {
+    showResult('Format Foto Harus Webp', 'error');
+    avatarInput.value = '';
+    return;
+  }
+
+  showResult('Sedang mengunggah...', 'pending');
+
+  const url = URL.createObjectURL(file);
+  const img = new Image();
+
+  img.onload = async () => {
+    try {
+      const blob = await cropToCircle(img);
+      URL.revokeObjectURL(url);
+      await uploadAvatarBlob(blob);
+    } catch (err) {
+      console.error(err);
+      showResult('GAGAL UPLOAD: ' + (err && err.message ? err.message : 'terjadi kesalahan'), 'error');
+    } finally {
+      avatarInput.value = '';
+    }
+  };
+
+  img.src = url;
+}
+
+// Crop otomatis: ambil bagian tengah (cover) dari foto, jadikan lingkaran
+function cropToCircle(img) {
+  return new Promise((resolve) => {
+    const outputSize = 640; // ukuran output avatar, kualitas tinggi
+
+    // Tentukan area kotak di tengah gambar (sisi terpendek) untuk di-cover
+    const shortest = Math.min(img.naturalWidth, img.naturalHeight);
+    const sx = (img.naturalWidth - shortest) / 2;
+    const sy = (img.naturalHeight - shortest) / 2;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = outputSize;
+    canvas.height = outputSize;
+    const ctx = canvas.getContext('2d');
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(outputSize / 2, outputSize / 2, outputSize / 2, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.drawImage(img, sx, sy, shortest, shortest, 0, 0, outputSize, outputSize);
+    ctx.restore();
+
+    canvas.toBlob((blob) => resolve(blob), 'image/webp', 0.95);
+  });
+}
+
+// ---- Upload ke Supabase (logic lama dipertahankan, dibungkus reusable) ----
+async function uploadAvatarBlob(blob) {
+  const file = new File([blob], 'avatar.webp', { type: 'image/webp' });
+
+  const { data: userData } = await sb.auth.getUser();
+  const authUserId = userData.user.id;
+
+  const { data: existingFiles } = await sb.storage
+    .from('avatars')
+    .list(authUserId);
+
+  if (existingFiles && existingFiles.length > 0) {
+    const filesToRemove = existingFiles.map(f => authUserId + '/' + f.name);
+    await sb.storage.from('avatars').remove(filesToRemove);
+  }
+
+  const filePath = authUserId + '/avatar.webp';
+
+  const { error: uploadError } = await sb.storage
+    .from('avatars')
+    .upload(filePath, file, { upsert: true });
+
+  if (uploadError) {
+    showResult('GAGAL UPLOAD: ' + uploadError.message, 'error');
+    console.error(uploadError);
+    throw uploadError;
+  }
+
+  const { data: urlData } = sb.storage
+    .from('avatars')
+    .getPublicUrl(filePath);
+
+  const publicUrl = urlData.publicUrl;
+
+  const { error: updateError } = await sb
+    .from('buyers')
+    .update({ avatar_url: publicUrl })
+    .eq('id', myBuyerId);
+
+  if (updateError) {
+    showResult('GAGAL SIMPAN URL: ' + updateError.message, 'error');
+    console.error(updateError);
+    throw updateError;
+  }
+
+  const preview = document.getElementById('avatar-preview');
+  preview.src = publicUrl + '?t=' + Date.now();
+  preview.style.display = 'block';
+  showResult('Foto profil berhasil diperbarui', 'success');
+}
+
+initAvatarEditor();
+
+// BUG-004: Enter di field password langsung submit login (dulu cuma tombol klik)
+document.getElementById('password').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    loginBuyer();
+  }
+});
+
+async function loadSocials() {
+  const { data, error } = await sb
+    .from('social_links')
+    .select('*')
+    .eq('buyer_id', myBuyerId);
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  const container = document.getElementById('social-list');
+
+  let socialsHtml = '';
+  data.forEach(item => {
+    const safePlatform = escapeHtml(item.platform);
+    const safeUrl = escapeHtml(item.url);
+    socialsHtml += `
+  <div class="link-item">
+    <div class="link-name-box" id="social-name-box-${item.id}" ondblclick="toggleSocialUrlBox('${item.id}')">
+      <span class="icon-circle icon-circle-preview" id="social-icon-preview-${item.id}">${getSocialIcon(item.platform)}</span>
+      <span class="link-name-text" id="social-name-text-${item.id}">${safePlatform}</span>
+          <input type="text" class="link-edit-input" id="social-name-edit-${item.id}" style="display:none;">
+          <div class="icon-actions">
+            <button class="icon-circle icon-circle-pencil" onclick="event.stopPropagation(); startEditSocialPlatform('${item.id}')" ondblclick="event.stopPropagation();" aria-label="Edit platform">${PENCIL_SVG_CIRCLE}</button>
+            <button class="icon-circle icon-circle-trash" onclick="event.stopPropagation(); deleteSocial('${item.id}')" ondblclick="event.stopPropagation();" aria-label="Hapus link sosmed">${TRASH_SVG}</button>
+          </div>
+        </div>
+        <div class="link-url-box" id="social-url-box-${item.id}">
+          <span class="link-url-text" id="social-url-text-${item.id}">${safeUrl}</span>
+          <input type="text" class="link-edit-input" id="social-url-edit-${item.id}" style="display:none;">
+          <button class="icon-circle icon-circle-pencil" onclick="event.stopPropagation(); startEditSocialUrl('${item.id}')" ondblclick="event.stopPropagation();" aria-label="Edit url">${PENCIL_SVG_CIRCLE}</button>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = socialsHtml;
+}
+
+function toggleSocialUrlBox(id) {
+  document.getElementById('social-url-box-' + id).classList.toggle('open');
+  document.getElementById('social-name-box-' + id).classList.toggle('active-outline');
+}
+
+function startEditSocialPlatform(id) {
+  const textEl = document.getElementById('social-name-text-' + id);
+  const inputEl = document.getElementById('social-name-edit-' + id);
+  const iconEl = document.getElementById('social-icon-preview-' + id);
+  inputEl.value = textEl.textContent;
+  textEl.style.display = 'none';
+  inputEl.style.display = 'block';
+  inputEl.focus();
+  inputEl.select();
+
+  // live-update icon sambil ngetik, misal <whatsapp> langsung ganti icon bundar
+  inputEl.oninput = () => {
+    iconEl.innerHTML = getSocialIcon(inputEl.value);
+  };
+
+  const commit = async () => {
+    const newVal = inputEl.value.trim();
+    if (newVal && newVal !== textEl.textContent) {
+      const { error } = await sb.from('social_links').update({ platform: newVal }).eq('id', id);
+      if (error) {
+        showResult('GAGAL SIMPAN PLATFORM: ' + error.message, 'error');
+        iconEl.innerHTML = getSocialIcon(textEl.textContent);
+      } else {
+        textEl.textContent = newVal;
+        showResult('Platform diperbarui!', 'success');
+      }
+    } else {
+      iconEl.innerHTML = getSocialIcon(textEl.textContent);
+    }
+    inputEl.style.display = 'none';
+    textEl.style.display = '';
+  };
+
+  const cancel = () => {
+    iconEl.innerHTML = getSocialIcon(textEl.textContent);
+    inputEl.style.display = 'none';
+    textEl.style.display = '';
+  };
+
+  inputEl.onkeydown = (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); inputEl.onblur = null; commit(); }
+    if (e.key === 'Escape') { e.preventDefault(); inputEl.onblur = null; cancel(); }
+  };
+  inputEl.onblur = () => commit();
+}
+
+function startEditSocialUrl(id) {
+  const textEl = document.getElementById('social-url-text-' + id);
+  const inputEl = document.getElementById('social-url-edit-' + id);
+  inputEl.value = textEl.textContent;
+  textEl.style.display = 'none';
+  inputEl.style.display = 'block';
+  inputEl.focus();
+  inputEl.select();
+
+  const commit = async () => {
+    const newVal = inputEl.value.trim();
+    if (newVal && newVal !== textEl.textContent) {
+      const { error } = await sb.from('social_links').update({ url: newVal }).eq('id', id);
+      if (error) {
+        showResult('GAGAL SIMPAN URL: ' + error.message, 'error');
+      } else {
+        textEl.textContent = newVal;
+        showResult('URL sosmed diperbarui!', 'success');
+      }
+    }
+    inputEl.style.display = 'none';
+    textEl.style.display = '';
+  };
+
+  const cancel = () => {
+    inputEl.style.display = 'none';
+    textEl.style.display = '';
+  };
+
+  inputEl.onkeydown = (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); inputEl.onblur = null; commit(); }
+    if (e.key === 'Escape') { e.preventDefault(); inputEl.onblur = null; cancel(); }
+  };
+  inputEl.onblur = () => commit();
+}
+
+function advanceSocialInput() {
+  const box = document.getElementById('social-input-box');
+  if (box.dataset.mode === 'url') return;
+
+  const nameField = document.getElementById('new-social-platform');
+  const urlField = document.getElementById('new-social-url');
+
+  if (!nameField.value.trim()) {
+    showResult('Isi platform dulu', 'pending');
+    nameField.focus();
+    return;
+  }
+
+  nameField.classList.remove('active-field');
+  nameField.classList.add('slide-out-up');
+
+  urlField.style.display = 'block';
+  urlField.classList.add('slide-in-from-bottom');
+  void urlField.offsetWidth; // force reflow
+
+  requestAnimationFrame(() => {
+    urlField.classList.remove('slide-in-from-bottom');
+    urlField.classList.add('active-field');
+  });
+
+  setTimeout(() => { nameField.style.display = 'none'; }, 300);
+
+  box.dataset.mode = 'url';
+  urlField.focus();
+}
+
+function resetSocialInputBox() {
+  const box = document.getElementById('social-input-box');
+  const nameField = document.getElementById('new-social-platform');
+  const urlField = document.getElementById('new-social-url');
+
+  nameField.value = '';
+  urlField.value = '';
+
+  urlField.style.display = 'none';
+  urlField.classList.remove('active-field', 'slide-in-from-bottom');
+
+  nameField.style.display = 'block';
+  nameField.classList.remove('slide-out-up');
+  nameField.classList.add('active-field');
+
+  box.dataset.mode = 'name';
+
+  const iconEl = document.getElementById('new-social-icon-preview');
+  if (iconEl) iconEl.innerHTML = SOCIAL_ICON_MAP.default;
+}
+
+function updateNewSocialIconPreview() {
+  const val = document.getElementById('new-social-platform').value;
+  document.getElementById('new-social-icon-preview').innerHTML = getSocialIcon(val);
+}
+
+async function submitNewSocial() {
+  const nameField = document.getElementById('new-social-platform');
+  const urlField = document.getElementById('new-social-url');
+  const platform = nameField.value.trim();
+  const url = urlField.value.trim();
+
+  if (!platform || !url) {
+    showResult('Isi platform & URL dulu', 'pending');
+    return;
+  }
+
+  if (!isSafeUrl(url)) {
+    showResult('URL tidak valid', 'error');
+    return;
+  }
+
+  const { error } = await sb
+    .from('social_links')
+    .insert({ buyer_id: myBuyerId, platform: platform, url: url });
+
+  if (error) {
+    showResult('GAGAL TAMBAH: ' + error.message, 'error');
+    return;
+  }
+
+  resetSocialInputBox();
+  showResult('Sosmed ditambahkan!', 'success');
+  await loadSocials();
+}
+
+async function deleteSocial(id) {
+  if (!confirm('Hapus link sosmed ini?')) return;
+
+  const { error } = await sb
+    .from('social_links')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    showResult('GAGAL HAPUS: ' + error.message, 'error');
+    return;
+  }
+
+  showResult('Sosmed dihapus!', 'success');
+  await loadSocials();
+}
+
+window.toggleSocialUrlBox = toggleSocialUrlBox;
+window.startEditSocialPlatform = startEditSocialPlatform;
+window.startEditSocialUrl = startEditSocialUrl;
+window.advanceSocialInput = advanceSocialInput;
+window.submitNewSocial = submitNewSocial;
+window.deleteSocial = deleteSocial;
+window.updateNewSocialIconPreview = updateNewSocialIconPreview;
+
+const PENCIL_SVG = `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 20h9" stroke="#9aa5b8" stroke-width="2" stroke-linecap="round"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5Z" stroke="#9aa5b8" stroke-width="2" stroke-linejoin="round"/></svg>`;
+
+const ARROW_SVG = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+const PENCIL_SVG_CIRCLE = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 20h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>`;
+
+const TRASH_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`;
+
+// ===== Sistem tag icon sosmed: ketik <whatsapp>, <tiktok>, <instagram>, <email> di nama =====
+// buat nambah tag baru, tinggal tambah baris "namatag: `<svg>...</svg>`," di bawah ini
+// (dan sinkronkan juga isi iconMap yang sama persis di index.html biar tampilannya konsisten)
+const SOCIAL_ICON_MAP = {
+  whatsapp: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.46 0-9.9 4.45-9.9 9.91 0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.78 1.22h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm5.82 14.1c-.24.68-1.4 1.3-1.93 1.38-.5.08-1.11.11-1.79-.11-.41-.13-.94-.3-1.62-.6-2.85-1.23-4.71-4.1-4.85-4.29-.14-.19-1.16-1.54-1.16-2.94 0-1.4.73-2.08 1-2.37.26-.28.57-.35.76-.35h.55c.18.01.41-.07.64.49.24.57.81 1.98.88 2.13.07.14.11.31.02.5-.09.19-.14.31-.27.48-.14.17-.29.38-.41.51-.14.14-.28.29-.12.57.16.28.71 1.17 1.52 1.9 1.05.94 1.93 1.23 2.21 1.37.28.14.44.12.6-.07.16-.19.68-.79.86-1.06.18-.27.36-.22.6-.13.24.09 1.53.72 1.79.85.26.13.43.2.5.31.06.11.06.63-.18 1.31z"/></svg>`,
+  instagram: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>`,
+  tiktok: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.53.02C13.84 0 15.14.01 16.44.02c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>`,
+  email: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 5.5A1.5 1.5 0 0 1 3.5 4h17A1.5 1.5 0 0 1 22 5.5v13a1.5 1.5 0 0 1-1.5 1.5h-17A1.5 1.5 0 0 1 2 18.5v-13zm2.2.5 7.8 5.4L19.8 6H4.2zM20 8.2l-7.4 5.1a1 1 0 0 1-1.2 0L4 8.2V18h16V8.2z"/></svg>`,
+  default: `<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 12h8M12 8v8" stroke="currentColor" stroke-width="1.5"/></svg>`
+};
+
+// Nemuin pola <tagname> di teks, ga peduli besar/kecil huruf (WhatsApp / WHATSAPP / whatsapp semua kena)
+function extractSocialTag(text) {
+  const m = String(text || '').match(/<\s*([a-z0-9_]+)\s*>/i);
+  return m ? m[1].toLowerCase() : null;
+}
+
+// Buang teks <tag>-nya, sisain nama bersih (dipakai kalau mau tampilin nama tanpa tag)
+function stripSocialTag(text) {
+  return String(text || '').replace(/<\s*[a-z0-9_]+\s*>/gi, '').trim();
+}
+
+function getSocialIcon(platform) {
+  const tag = extractSocialTag(platform);
+  if (tag && SOCIAL_ICON_MAP[tag]) return SOCIAL_ICON_MAP[tag];
+  const key = (platform || '').toLowerCase();
+  for (const k in SOCIAL_ICON_MAP) {
+    if (k !== 'default' && key.includes(k)) return SOCIAL_ICON_MAP[k];
+  }
+  return SOCIAL_ICON_MAP.default;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str ?? '';
+  return div.innerHTML;
+}
+
+// Hanya izinkan skema URL yang aman disimpan (menolak javascript:, data:, dll)
+function isSafeUrl(url) {
+  try {
+    const u = new URL(String(url), window.location.href);
+    return ['http:', 'https:', 'mailto:', 'tel:', 'whatsapp:'].includes(u.protocol);
+  } catch (err) {
+    return false;
+  }
+}
+
+async function loadSections() {
+  const { data: sectionsData, error: sectionsError } = await sb
+    .from('sections')
+    .select('*')
+    .eq('buyer_id', myBuyerId)
+    .order('sort_order');
+
+  if (sectionsError) { console.error(sectionsError); return; }
+
+  const { data: linksData, error: linksError } = await sb
+    .from('links')
+    .select('*')
+    .eq('buyer_id', myBuyerId)
+    .order('sort_order');
+
+  if (linksError) { console.error(linksError); return; }
+
+  const container = document.getElementById('sections-list');
+  container.innerHTML = '';
+
+  sectionsData.forEach(section => {
+    const sectionLinks = linksData.filter(l => l.section_id === section.id);
+
+    let linksHtml = '';
+    // numpuk di ATAS: yang paling baru ditambahkan (sort_order terbesar) tampil paling atas
+    sectionLinks.forEach(link => {
+      const safeLabel = escapeHtml(link.label);
+      const safeUrl = escapeHtml(link.url);
+      linksHtml += `
+        <div class="link-item">
+          <div class="link-name-box" id="name-box-${link.id}" ondblclick="toggleUrlBox('${link.id}')">
+            <span class="link-name-text" id="name-text-${link.id}">${safeLabel}</span>
+            <input type="text" class="link-edit-input" id="name-edit-${link.id}" style="display:none;">
+            <div class="icon-actions">
+              <button class="icon-circle icon-circle-pencil" onclick="event.stopPropagation(); startEditName('${link.id}')" ondblclick="event.stopPropagation();" aria-label="Edit nama">${PENCIL_SVG_CIRCLE}</button>
+              <button class="icon-circle icon-circle-trash" onclick="event.stopPropagation(); deleteLink('${link.id}')" ondblclick="event.stopPropagation();" aria-label="Hapus link">${TRASH_SVG}</button>
+            </div>
+          </div>
+          <div class="link-url-box" id="url-box-${link.id}">
+            <span class="link-url-text" id="url-text-${link.id}">${safeUrl}</span>
+            <input type="text" class="link-edit-input" id="url-edit-${link.id}" style="display:none;">
+            <button class="icon-circle icon-circle-pencil" onclick="event.stopPropagation(); startEditUrl('${link.id}')" ondblclick="event.stopPropagation();" aria-label="Edit url">${PENCIL_SVG_CIRCLE}</button>
+          </div>
+        </div>
+      `;
+    });
+
+    const div = document.createElement('div');
+    div.className = 'section-card';
+    div.innerHTML = `
+      <div class="section-card-head">
+        <span class="section-title-text" id="section-title-text-${section.id}">${escapeHtml(section.title)}</span>
+        <input type="text" class="section-title-edit" id="section-title-edit-${section.id}" style="display:none;">
+        <div class="icon-actions">
+          <button class="icon-circle icon-circle-pencil" onclick="startEditSectionTitle('${section.id}')" aria-label="Edit nama section">${PENCIL_SVG_CIRCLE}</button>
+          <button class="icon-circle icon-circle-trash" onclick="confirmDeleteSection('${section.id}')" aria-label="Hapus section">${TRASH_SVG}</button>
+        </div>
+      </div>
+      <div>${linksHtml}</div>
+      <div class="add-link-group">
+        <div class="link-input-box" id="input-box-${section.id}" data-mode="name">
+          <div class="link-input-track">
+            <input type="text" class="link-input-field active-field" id="new-link-name-${section.id}" placeholder="Nama tombol">
+            <input type="text" class="link-input-field" id="new-link-url-${section.id}" placeholder="URL tombol" style="display:none;">
+          </div>
+          <button class="arrow-btn" onclick="advanceLinkInput('${section.id}')" aria-label="Lanjut isi URL">${ARROW_SVG}</button>
+        </div>
+        <button class="link-submit-box" onclick="submitNewLink('${section.id}')">
+          <span>Tambah</span>
+          ${ARROW_SVG}
+        </button>
+      </div>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+function toggleUrlBox(linkId) {
+  document.getElementById('url-box-' + linkId).classList.toggle('open');
+  document.getElementById('name-box-' + linkId).classList.toggle('active-outline');
+}
+
+function startEditName(linkId) {
+  const textEl = document.getElementById('name-text-' + linkId);
+  const inputEl = document.getElementById('name-edit-' + linkId);
+  inputEl.value = textEl.textContent;
+  textEl.style.display = 'none';
+  inputEl.style.display = 'block';
+  inputEl.focus();
+  inputEl.select();
+
+  const commit = async () => {
+    const newVal = inputEl.value.trim();
+    if (newVal && newVal !== textEl.textContent) {
+      const { error } = await sb.from('links').update({ label: newVal }).eq('id', linkId);
+      if (error) {
+        showResult('GAGAL SIMPAN NAMA: ' + error.message, 'error');
+      } else {
+        textEl.textContent = newVal;
+        showResult('Nama link diperbarui!', 'success');
+      }
+    }
+    inputEl.style.display = 'none';
+    textEl.style.display = '';
+  };
+
+  const cancel = () => {
+    inputEl.style.display = 'none';
+    textEl.style.display = '';
+  };
+
+  inputEl.onkeydown = (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); inputEl.onblur = null; commit(); }
+    if (e.key === 'Escape') { e.preventDefault(); inputEl.onblur = null; cancel(); }
+  };
+  inputEl.onblur = () => commit();
+}
+
+function startEditUrl(linkId) {
+  const textEl = document.getElementById('url-text-' + linkId);
+  const inputEl = document.getElementById('url-edit-' + linkId);
+  inputEl.value = textEl.textContent;
+  textEl.style.display = 'none';
+  inputEl.style.display = 'block';
+  inputEl.focus();
+  inputEl.select();
+
+  const commit = async () => {
+    const newVal = inputEl.value.trim();
+    if (newVal && newVal !== textEl.textContent) {
+      const { error } = await sb.from('links').update({ url: newVal }).eq('id', linkId);
+      if (error) {
+        showResult('GAGAL SIMPAN URL: ' + error.message, 'error');
+      } else {
+        textEl.textContent = newVal;
+        showResult('URL link diperbarui!', 'success');
+      }
+    }
+    inputEl.style.display = 'none';
+    textEl.style.display = '';
+  };
+
+  const cancel = () => {
+    inputEl.style.display = 'none';
+    textEl.style.display = '';
+  };
+
+  inputEl.onkeydown = (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); inputEl.onblur = null; commit(); }
+    if (e.key === 'Escape') { e.preventDefault(); inputEl.onblur = null; cancel(); }
+  };
+  inputEl.onblur = () => commit();
+}
+
+function startEditSectionTitle(sectionId) {
+  const textEl = document.getElementById('section-title-text-' + sectionId);
+  const inputEl = document.getElementById('section-title-edit-' + sectionId);
+  inputEl.value = textEl.textContent;
+  textEl.style.display = 'none';
+  inputEl.style.display = 'block';
+  inputEl.focus();
+  inputEl.select();
+
+  const commit = async () => {
+    const newVal = inputEl.value.trim();
+    if (newVal && newVal !== textEl.textContent) {
+      const { error } = await sb.from('sections').update({ title: newVal }).eq('id', sectionId);
+      if (error) {
+        showResult('GAGAL SIMPAN NAMA SECTION: ' + error.message, 'error');
+      } else {
+        textEl.textContent = newVal;
+        showResult('Nama section diperbarui!', 'success');
+      }
+    }
+    inputEl.style.display = 'none';
+    textEl.style.display = '';
+  };
+
+  const cancel = () => {
+    inputEl.style.display = 'none';
+    textEl.style.display = '';
+  };
+
+  inputEl.onkeydown = (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); inputEl.onblur = null; commit(); }
+    if (e.key === 'Escape') { e.preventDefault(); inputEl.onblur = null; cancel(); }
+  };
+  inputEl.onblur = () => commit();
+}
+
+function advanceLinkInput(sectionId) {
+  const box = document.getElementById('input-box-' + sectionId);
+  if (box.dataset.mode === 'url') return;
+
+  const nameField = document.getElementById('new-link-name-' + sectionId);
+  const urlField = document.getElementById('new-link-url-' + sectionId);
+
+  if (!nameField.value.trim()) {
+    showResult('Isi nama tombol dulu', 'pending');
+    nameField.focus();
+    return;
+  }
+
+  nameField.classList.remove('active-field');
+  nameField.classList.add('slide-out-up');
+
+  urlField.style.display = 'block';
+  urlField.classList.add('slide-in-from-bottom');
+  void urlField.offsetWidth; // force reflow
+
+  requestAnimationFrame(() => {
+    urlField.classList.remove('slide-in-from-bottom');
+    urlField.classList.add('active-field');
+  });
+
+  setTimeout(() => { nameField.style.display = 'none'; }, 300);
+
+  box.dataset.mode = 'url';
+  urlField.focus();
+}
+
+async function submitNewLink(sectionId) {
+  const nameField = document.getElementById('new-link-name-' + sectionId);
+  const urlField = document.getElementById('new-link-url-' + sectionId);
+  const label = nameField.value.trim();
+  const url = urlField.value.trim();
+
+  if (!label || !url) {
+    showResult('Isi nama & URL dulu', 'pending');
+    return;
+  }
+
+  if (!isSafeUrl(url)) {
+    showResult('URL tidak valid', 'error');
+    return;
+  }
+
+  const { data: maxRow } = await sb
+    .from('links')
+    .select('sort_order')
+    .eq('section_id', sectionId)
+    .order('sort_order', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const nextOrder = (maxRow ? maxRow.sort_order : -1) + 1;
+
+  const { error } = await sb
+    .from('links')
+    .insert({ buyer_id: myBuyerId, section_id: sectionId, label: label, url: url, sort_order: nextOrder });
+
+  if (error) {
+    showResult('GAGAL TAMBAH BUTTON: ' + error.message, 'error');
+    return;
+  }
+
+  showResult('Button ditambahkan!', 'success');
+  await loadSections();
+}
+
+window.toggleUrlBox = toggleUrlBox;
+window.startEditName = startEditName;
+window.startEditUrl = startEditUrl;
+window.startEditSectionTitle = startEditSectionTitle;
+window.advanceLinkInput = advanceLinkInput;
+window.submitNewLink = submitNewLink;
+
+async function addSection() {
+  const title = document.getElementById('new-section-title').value;
+  if (!title) {
+    showResult('Isi nama section dulu', 'pending');
+    return;
+  }
+
+  const { count } = await sb
+    .from('sections')
+    .select('*', { count: 'exact', head: true })
+    .eq('buyer_id', myBuyerId);
+
+  const { error } = await sb
+    .from('sections')
+    .insert({ buyer_id: myBuyerId, title: title, sort_order: count || 0 });
+
+  if (error) {
+    showResult('GAGAL TAMBAH SECTION: ' + error.message, 'error');
+    return;
+  }
+
+  document.getElementById('new-section-title').value = '';
+  showResult('Section ditambahkan!', 'success');
+  await loadSections();
+}
+
+let pendingDeleteSectionId = null;
+
+function confirmDeleteSection(sectionId) {
+  pendingDeleteSectionId = sectionId;
+  document.getElementById('delete-section-modal').classList.add('show');
+}
+
+function cancelDeleteSection() {
+  pendingDeleteSectionId = null;
+  document.getElementById('delete-section-modal').classList.remove('show');
+}
+
+async function confirmDeleteSectionYes() {
+  const id = pendingDeleteSectionId;
+  document.getElementById('delete-section-modal').classList.remove('show');
+  pendingDeleteSectionId = null;
+  if (id) await deleteSection(id);
+}
+
+async function deleteSection(id) {
+  const { error } = await sb
+    .from('sections')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    showResult('GAGAL HAPUS SECTION: ' + error.message, 'error');
+    return;
+  }
+
+  showResult('Section dihapus!', 'success');
+  await loadSections();
+}
+
+async function deleteLink(id) {
+  const { error } = await sb
+    .from('links')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    showResult('GAGAL HAPUS BUTTON: ' + error.message, 'error');
+    return;
+  }
+
+  showResult('Button dihapus!', 'success');
+  await loadSections();
+}
+
+window.addSection = addSection;
+window.deleteSection = deleteSection;
+window.deleteLink = deleteLink;
+window.loadSections = loadSections;
+  </script>
+
+</body>
+</html>
